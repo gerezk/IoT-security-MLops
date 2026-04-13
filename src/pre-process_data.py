@@ -11,7 +11,8 @@ raw_dir_path = Path('../data/raw')
 processed_dir_path = Path('../data/processed')
 processed_dir_path.mkdir(exist_ok=True, parents=True)
 
-original_time_col = 'frame.time_epoch'
+time_col = 'frame.time_epoch'
+precision = 6 #  for rounding floats
 min_gap_size = 1e-6 #  in seconds
 attack_prob = 0.05
 np.random.seed(42)
@@ -41,7 +42,9 @@ attack_pools = {
 }
 attack_indices = {k: 0 for k in attack_types}
 
-# randomly fill gaps with attack packets given attack_prob
+# randomly select packets from df_normal and attack_dfs
+# temporal structure of df_normal is preserved, and attack packets given synthetic time columns based on normal packets
+t_initial = df_normal.iloc[0][time_col]
 rows = []
 for i in range(len(df_normal) - 1):
     current = df_normal.iloc[i]
@@ -49,8 +52,8 @@ for i in range(len(df_normal) - 1):
 
     rows.append(current)
 
-    t_start = current[original_time_col]
-    t_end = next_row[original_time_col]
+    t_start = current[time_col]
+    t_end = next_row[time_col]
     gap = t_end - t_start
 
     # decide whether to inject
@@ -66,9 +69,16 @@ for i in range(len(df_normal) - 1):
         attack_indices[attack_type] += 1
 
         # assign synthetic timestamp inside gap
-        attack_row[original_time_col] = t_start + np.random.rand() * gap
-
+        t_new = round(t_start + np.random.rand() * gap, precision)
+        attack_row['frame.time_delta'] = round(t_new - t_start, precision)
+        attack_row['frame.time_delta_displayed'] = None
+        attack_row[time_col] = t_new
         attack_row['class'] = attack_type
+
+        if len(rows) == 0:
+            attack_row['frame.time_relative'] = 0.0
+        else:
+            attack_row['frame.time_relative'] = round(t_new - t_initial, precision)
 
         rows.append(attack_row)
 
@@ -78,7 +88,7 @@ rows.append(df_normal.iloc[-1])
 # --- Final dataframe ---
 df_final = (
     pd.DataFrame(rows)
-    .sort_values(original_time_col)
+    .sort_values(time_col)
     .reset_index(drop=True)
 )
 cols_original = df_final.columns
@@ -89,8 +99,8 @@ cols_kept = df_final.columns
 print(f'Dropping {len(cols_original)-len(cols_kept)} columns: {set_difference(cols_original, cols_kept)}')
 
 # drop records with na in key_col
-n_na = df_final[original_time_col].isna().sum()
-print(f'{n_na} records with NaN in {original_time_col}.')
-df_final = df_final.dropna(axis='rows', subset=[original_time_col])
+n_na = df_final[time_col].isna().sum()
+print(f'{n_na} records with NaN in {time_col}.')
+df_final = df_final.dropna(axis='rows', subset=[time_col])
 
 df_final.to_csv(processed_dir_path / 'processed.csv', index=False)
