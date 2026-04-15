@@ -1,3 +1,8 @@
+"""
+Combines all packet classes into a single csv, with attack packets temporally interleaved into the normal packet stream
+via random injection. Attack packets are given synthetic time information based on normal packets.
+"""
+
 import pandas as pd
 from pathlib import Path
 import numpy as np
@@ -71,7 +76,7 @@ for i in range(len(df_normal) - 1):
         # assign synthetic timestamp inside gap
         t_new = round(t_start + np.random.rand() * gap, precision)
         attack_row['frame.time_delta'] = round(t_new - t_start, precision)
-        attack_row['frame.time_delta_displayed'] = None
+        attack_row['frame.time_delta_displayed'] = attack_row['frame.time_delta']
         attack_row[time_col] = t_new
         attack_row['class'] = attack_type
 
