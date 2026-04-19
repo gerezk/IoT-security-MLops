@@ -16,10 +16,10 @@ def randomly_inject_attacks(normal_df: pd.DataFrame,
                             rng: np.Generator) -> pd.DataFrame:
     """
     Inject attacks in between normal packets with a probability of 5%.
-    :param normal_df: df_normal of normal packets
+    :param normal_df: df of normal packets
     :param attack_dfs: dict with attack_type: attack_df pairs
     :param rng: np.random Generator object
-    :return: df_normal with attacks injected between normal packets
+    :return: normal_df with attacks injected between normal packets
     """
     time_col = 'frame.time_epoch'
     precision = 6  # for rounding floats
@@ -72,8 +72,6 @@ def randomly_inject_attacks(normal_df: pd.DataFrame,
         pd.DataFrame(rows)
         .reset_index(drop=True)
     )
-    # drop cols that are all NA
-    df_final = df_final.dropna(axis='columns', how='all')
 
     return df_final
 
@@ -81,7 +79,12 @@ def randomly_inject_attacks(normal_df: pd.DataFrame,
 raw_dir_path = Path('../data/raw') # must exist
 processed_data_dir = Path('../data/processed')
 processed_data_dir.mkdir(exist_ok=True, parents=True)
-df_normal = pd.read_csv(raw_dir_path / 'legitimate_1w.csv')
+specify_col_dtype = {'mqtt.clientid': str,
+                     'mqtt.conack.flags': str,
+                     'mqtt.conflags': str,
+                     'mqtt.msg': str,
+                     'mqtt.protoname': str}
+df_normal = pd.read_csv(raw_dir_path / 'legitimate_1w.csv', dtype=specify_col_dtype)
 
 # --- create reference.csv ---
 # first 100k normal packets
@@ -97,7 +100,7 @@ for file in raw_dir_path.iterdir():
 
     if file.suffix == '.csv':
         if packet_class != 'legitimate':
-            df = pd.read_csv(file)
+            df = pd.read_csv(file, dtype=specify_col_dtype)
             df['class'] = packet_class
             dfs_attack[packet_class] = df_normal
 
