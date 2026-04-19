@@ -17,7 +17,7 @@ distributed between 0 and 3600 seconds.
 
 Instead, it was found that all random sensors behaved as periodic sensors with
 a message frequency of 1 second. Additionally, the light intensity sensor should have pushed a message every 1800
-seconds, but instead a frequency of 180 seconds was observed.
+seconds. Instead a frequency of 180 seconds was observed.
 
 This finding does not invalidate the overarching purpose of the dataset, since the 
 focus is on the protocol-level features and attack signatures rather than the exact temporal structure. But this is 
@@ -29,24 +29,8 @@ For details on the analysis, see `../notebooks/msg_freq_validation.ipynb`.
 
 ### Pre-training Tests
 
-Some assumptions must be made that may not be applicable during an actual 
-deployed scenario due to limitations on how the data was collected.
-Validation rules are derived from these assumptions.
-
-The following columns must not be null:
-1. **frame.***: comes from the capture itself in Wireshark and should never be null in a valid export.
-2. **ip.***: assumption that all packets have an IPv4 layer.
-3. **tcp.***: assumption that the IP protocol in a packet's IPv4 header is TCP. 
-Exception, tcp.analysis.initial_rtt is NOT included in this rule.
-
-The following columns must adhere to some distribution:
-1. **tcp.dstport** must be an int ranging from 0 to 65535 (inclusive): TCP destination port numbers are 16-bit 
-unsigned integers ranging from 0 to 65535.
-2. **ip.src** and **ip.dst** must be a member of the set {10.16.100.73, 10.16.120.44, 10.16.120.72, 192.168.0.151, 
-192.168.0.150, 192.168.0.152, 192.168.0.154, 192.168.0.155, 192.168.0.180, 192.168.0.173, 192.168.0.176, 192.168.0.178, 
-192.168.0.174, 192.168.1.90, 192.168.1.91, 192.168.1.100}, which contains the IP addresses of all devices used for 
-data collection.
-3. **frame.time_delta** ≤ 1.1 sec and a value greater than that can be interpreted as a possible network outage.
+See `../notebooks/pre-training_analysis.ipynb` for justification of the pre-training tests.
+The implementation of the tests can be found in `../src/tests/pre-training-test.py`.
 
 ### Pre-deployment Tests
 
