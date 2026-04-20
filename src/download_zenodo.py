@@ -10,7 +10,8 @@ FILES = [
 ]
 
 def download():
-    data_dir = Path("../data") / "processed"
+    base_dir = Path(__file__).resolve().parents[1]
+    data_dir = base_dir / "data/processed"
     data_dir.mkdir(parents=True, exist_ok=True)
 
     for file_name in FILES:

@@ -34,7 +34,8 @@ def add_sensor_msg_delta(df_: pd.DataFrame, ip: str, msgtype: float):
 context = gx.get_context(mode="ephemeral")
 
 # import data
-df = pd.read_csv(Path('../../data/processed/training.csv'))
+BASE_DIR = Path(__file__).resolve().parents[2]
+df = pd.read_csv(BASE_DIR / 'data/processed/training.csv')
 
 # add msg delta columns for both motion sensors
 df = add_sensor_msg_delta(df, '192.168.0.154', 3.0) # (1)
@@ -113,7 +114,7 @@ serializable_results = {}
 for key, value in checkpoint_result.run_results.items():
     serializable_results[str(key)] = value.to_json_dict()
 
-test_result_dir = Path('../../test_results')
+test_result_dir = BASE_DIR / 'test_results'
 test_result_dir.mkdir(exist_ok=True, parents=True)
 with open(test_result_dir / "pre-training_validation_results.json", "w") as f:
     json.dump(serializable_results, f, indent=2)
