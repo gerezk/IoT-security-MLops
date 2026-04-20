@@ -54,11 +54,59 @@ tbd
 
 ### Docker 
 
-tbd
+Clone repository:
+
+```
+gh repo clone gerezk/IoT-security-MLops
+cd IoT-security-MLops
+```
+
+Open Docker:
+
+```
+open -a Docker
+```
+
+Build container:
+
+```
+docker build -t mqtt-mlops .
+```
+
+Run container:
+
+```
+docker run -it \
+  -v $(pwd)/data/processed:/app/data/processed \
+  -v $(pwd)/test_results:/app/test_results \
+  mqtt-mlops
+```
 
 ### Virtual Environment
 
-tbd
+The repository is only guranteed to work with Python 3.12.
+
+```
+python3.12 -m venv .venv
+```
+
+If using Mac/Linux:
+
+```
+source .venv/bin/activate
+```
+
+If using Windows:
+
+```
+.venv\Scripts\activate
+```
+
+Install requirements:
+
+```
+pip install -r requirements.txt
+```
 
 ## ℹ️ Sources
 
@@ -70,3 +118,7 @@ The full dataset is on [Kaggle](https://www.kaggle.com/datasets/cnrieiit/mqttset
 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) license.
 More information can be found in the paper 
 ([DOI: 10.3390/s20226578](https://doi.org/10.3390/s20226578)).
+
+The pre-processed datasets can be found at 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19663452.svg)](https://doi.org/10.5281/zenodo.19663452).
+These datasets are also licensed under the [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) license.
