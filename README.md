@@ -84,7 +84,7 @@ docker run -it \
 
 ### Virtual Environment
 
-The repository is only guranteed to work with Python 3.12.
+The repository is only guaranteed to work with Python 3.12.
 
 ```
 python3.12 -m venv .venv

@@ -114,7 +114,7 @@ serializable_results = {}
 for key, value in checkpoint_result.run_results.items():
     serializable_results[str(key)] = value.to_json_dict()
 
-test_result_dir = BASE_DIR / 'test_results'
+test_result_dir = BASE_DIR / 'output/test_results'
 test_result_dir.mkdir(exist_ok=True, parents=True)
 with open(test_result_dir / "pre-training_validation_results.json", "w") as f:
     json.dump(serializable_results, f, indent=2)

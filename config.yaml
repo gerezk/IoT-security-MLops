@@ -1,0 +1,4 @@
+train_config:
+  n_estimators: 100
+  data_path: data/processed/training.csv # relative to project root
+  model_path: output/train_artifacts/rf.pkl
