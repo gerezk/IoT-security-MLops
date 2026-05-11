@@ -1,6 +1,7 @@
 from pathlib import Path
 from pydantic import BaseModel, Field, model_validator
 import yaml
+from typing import Optional, Literal
 
 from src.utils import find_repo_root
 
@@ -34,8 +35,11 @@ class PathConfig(BaseModel):
 
 
 class TrainConfig(BaseModel):
-    test_size: float = Field(gt=0, lt=1)
     n_estimators: int = Field(gt=0)
+    criterion: Literal["gini", "entropy", "log_loss"]
+    max_depth: Optional[int] = None
+    min_samples_split: int
+    min_samples_leaf: int
     random_state: int = 42
 
 
@@ -43,7 +47,7 @@ class TrainConfig(BaseModel):
 class Config(BaseModel):
     paths: PathConfig
     train: TrainConfig
-   # eval_config: TestConfig
+
 
 def load_config(config_file: Path) -> Config:
     """

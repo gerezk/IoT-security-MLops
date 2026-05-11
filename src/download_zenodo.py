@@ -1,7 +1,7 @@
 from pathlib import Path
 import urllib.request
 
-BASE_URL = "https://zenodo.org/records/19663452/files"
+BASE_URL = "https://doi.org/10.5281/zenodo.20126302"
 
 FILES = [
     "training.csv",
