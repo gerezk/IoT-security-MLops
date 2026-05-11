@@ -1,5 +1,6 @@
 # data dir
 data/
+!src/data/
 output/
 test_results/
 

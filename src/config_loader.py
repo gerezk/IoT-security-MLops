@@ -34,6 +34,7 @@ class PathConfig(BaseModel):
 
 
 class TrainConfig(BaseModel):
+    test_size: float = Field(gt=0, lt=1)
     n_estimators: int = Field(gt=0)
     random_state: int = 42
 
