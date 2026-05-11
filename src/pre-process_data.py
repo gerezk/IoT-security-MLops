@@ -88,7 +88,7 @@ df_normal = pd.read_csv(raw_dir_path / 'legitimate_1w.csv', dtype=specify_col_dt
 
 # --- create reference.csv ---
 # first 100k normal packets
-df_ref = df_normal.iloc[:100_000]
+df_ref = df_normal.iloc[:100_000].copy()
 df_ref['class'] = 'legitimate'
 df_ref.to_csv(processed_data_dir / 'reference.csv', index=False)
 
@@ -102,14 +102,14 @@ for file in raw_dir_path.iterdir():
         if packet_class != 'legitimate':
             df = pd.read_csv(file, dtype=specify_col_dtype)
             df['class'] = packet_class
-            dfs_attack[packet_class] = df_normal
+            dfs_attack[packet_class] = df
 
-df_end = df_normal.iloc[-200_000:] # take last 200k normal packets
+df_end = df_normal.iloc[-200_000:].copy() # take last 200k normal packets
 df_end['class'] = 'legitimate'
 rng_training = np.default_rng(1)
 # --- create training.csv ---
 # first half of df_end then randomly inject attack packets
-df_train = df_normal.iloc[0:100_000]
+df_train = df_end.iloc[0:100_000]
 df_train = randomly_inject_attacks(df_train, dfs_attack, rng_training)
 df_train.to_csv(processed_data_dir / 'training.csv', index=False)
 
