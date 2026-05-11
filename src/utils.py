@@ -1,8 +1,6 @@
 import pandas as pd
 from pathlib import Path
 
-from narwhals import DataFrame
-
 
 def find_repo_root(start: Path | None = None) -> Path:
     """

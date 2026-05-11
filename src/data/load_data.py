@@ -1,14 +1,14 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split
+from pathlib import Path
 from typing import Tuple
 
 from src.utils import find_repo_root
-from src.config_loader import Config
 
 
 def drop_cols(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Drop columns from processed data according to recommendations from the original paper.
+    Drop columns from processed data according to recommendations from the Kaggle page:
+    https://www.kaggle.com/datasets/cnrieiit/mqttset.
     :param df: processed data
     :return: df with unneeded columns dropped
     """
@@ -25,21 +25,22 @@ def drop_cols(df: pd.DataFrame) -> pd.DataFrame:
     return df_copy
 
 
-def load_training_data(config: Config) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def load_training_data(path: Path) -> Tuple[pd.DataFrame, pd.Series]:
     """
-    Create training and testing data from train.csv using random shuffling.
-    :param config: Config object
-    :return: X_train, X_test, y_train, y_test
+    Load training data and encode categorical columns.
+    :param path: relative path to training data from project root
+    :return: x, y
     """
-    data_file = find_repo_root() / config.paths.train_data
+    data_file = find_repo_root() / path
     df = pd.read_csv(data_file)
     df = drop_cols(df)
 
-    X = df.iloc[:, :-1]
+    # encode categorical columns
+    df = df.astype('category')
+    cat_columns = df.select_dtypes(['category']).columns
+    df[cat_columns] = df[cat_columns].apply(lambda z: z.cat.codes)
+
+    x = df.iloc[:, :-1]
     y = df.iloc[:, -1]
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                        test_size=config.train.test_size,
-                                                        random_state=config.train.random_state)
-
-    return X_train, X_test, y_train, y_test
+    return x, y
