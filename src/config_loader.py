@@ -2,6 +2,8 @@ from pathlib import Path
 from pydantic import BaseModel, Field, model_validator
 import yaml
 
+from src.utils import find_repo_root
+
 
 class PathConfig(BaseModel):
     train_data: Path
@@ -13,7 +15,7 @@ class PathConfig(BaseModel):
     @model_validator(mode="after")
     def validate_paths(self):
         # validate files exist
-        base_dir = Path(__file__).resolve().parents[1]
+        base_dir = find_repo_root()
 
         if not (base_dir / self.train_data).exists():
             raise FileNotFoundError(

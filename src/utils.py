@@ -1,4 +1,22 @@
 import pandas as pd
+from pathlib import Path
+
+
+def find_repo_root(start: Path | None = None) -> Path:
+    """
+    Find the root of the repository. Files pyproject.toml or .git assumed to be at the repo root.
+    :param start: the path to start from, defaults to the current working directory
+    :return: path to the root of the repository
+    """
+    start = start or Path(__file__).resolve()
+
+    for parent in [start] + list(start.parents):
+        if (parent / ".git").exists():
+            return parent
+        if (parent / "config.yaml").exists():
+            return parent
+
+    raise RuntimeError("Could not find repository root")
 
 
 def df_sensor_msg_freq(df: pd.DataFrame, ip_address: str, mqtt_msgtype: float) -> pd.DataFrame:

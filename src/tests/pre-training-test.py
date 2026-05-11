@@ -6,6 +6,7 @@ import json
 from typing import List
 
 from src.config_loader import load_config, Config
+from src.utils import find_repo_root
 
 
 def add_not_null_expectations(expectations_suite: gx.ExpectationSuite, columns: List[str]):
@@ -123,5 +124,5 @@ def main(config: Config):
         json.dump(serializable_results, f, indent=2)
 
 if __name__ == "__main__":
-    config_path = Path(__file__).resolve().parents[2] / 'config.yaml'
+    config_path = find_repo_root() / 'config.yaml'
     main(load_config(config_path))
