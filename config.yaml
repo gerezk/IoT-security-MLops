@@ -1,4 +1,10 @@
-train_config:
+paths: # relative to project root
+  train_data: data/processed/training.csv
+  deployment_data: data/processed/post-deployment.csv
+
+  test_results_dir: output/test_results
+  model_dir: output/train_artifacts
+
+train:
   n_estimators: 100
-  data_path: data/processed/training.csv # relative to project root
-  model_path: output/train_artifacts/rf.pkl
+  random_state: 42

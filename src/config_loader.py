@@ -3,37 +3,49 @@ from pydantic import BaseModel, Field, model_validator
 import yaml
 
 
-class TrainConfig(BaseModel):
-    n_estimators: int = Field(gt=0)
-    random_state: int = 42
-    data_path: Path
-    model_path: Path
+class PathConfig(BaseModel):
+    train_data: Path
+    deployment_data: Path
+
+    test_results_dir: Path
+    model_dir: Path
 
     @model_validator(mode="after")
     def validate_paths(self):
-        # validate training data exists
+        # validate files exist
         base_dir = Path(__file__).resolve().parents[1]
 
-        if not (base_dir / self.data_path).exists():
+        if not (base_dir / self.train_data).exists():
             raise FileNotFoundError(
-                f"Data path does not exist: {self.data_path}"
+                f"Train data does not exist: {self.train_data}"
+            )
+        if not (base_dir / self.deployment_data).exists():
+            raise FileNotFoundError(
+                f"Deployment does not exist: {self.deployment_data}"
             )
 
-        # create model output directory automatically
-        (base_dir / self.model_path).parent.mkdir(parents=True, exist_ok=True)
+        # create output dirs automatically
+        (base_dir / self.test_results_dir).mkdir(parents=True, exist_ok=True)
+        (base_dir / self.model_dir).mkdir(parents=True, exist_ok=True)
 
         return self
 
 
+class TrainConfig(BaseModel):
+    n_estimators: int = Field(gt=0)
+    random_state: int = 42
+
+
 # --- Top-level config model ---
 class Config(BaseModel):
-    train_config: TrainConfig
+    paths: PathConfig
+    train: TrainConfig
    # eval_config: TestConfig
 
 def load_config(config_file: Path) -> Config:
     """
     Load config from yaml file.
-    :param config_file: relative path from project root to config file
+    :param config_file: absoluet path to the config file
     :return: Config object
     """
     with open(config_file, "r") as f:
