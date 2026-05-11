@@ -1,14 +1,19 @@
 from config_loader import load_config
-from pathlib import Path
 
 from src.utils import find_repo_root
 from src.data.load_data import load_training_data
+from src.models.train_model import train_random_forest
+from src.utils import save_model
 
 
 def main(config_file):
     config = load_config(config_file)
 
-    X_train, X_test, y_train, y_test = load_training_data(config)
+    x_train, y_train = load_training_data(config.paths.train_data)
+
+    model = train_random_forest(x_train, y_train, config.train)
+
+    save_model(model, config.paths.model_dir / 'random_forest.skops')
 
 if __name__ == '__main__':
     config_path = find_repo_root() / 'config.yaml'

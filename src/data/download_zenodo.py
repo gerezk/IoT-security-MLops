@@ -1,5 +1,7 @@
-from pathlib import Path
 import urllib.request
+
+from src.utils import find_repo_root
+
 
 BASE_URL = "https://doi.org/10.5281/zenodo.20126302"
 
@@ -10,7 +12,7 @@ FILES = [
 ]
 
 def download():
-    base_dir = Path(__file__).resolve().parents[1]
+    base_dir = find_repo_root()
     data_dir = base_dir / "data/processed"
     data_dir.mkdir(parents=True, exist_ok=True)
 

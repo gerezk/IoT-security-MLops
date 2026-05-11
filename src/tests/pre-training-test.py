@@ -1,7 +1,6 @@
 import great_expectations as gx
 import pandas as pd
 from pydantic import StrictStr
-from pathlib import Path
 import json
 from typing import List
 
@@ -38,7 +37,7 @@ def main(config: Config):
     context = gx.get_context(mode="ephemeral")
 
     # import data
-    base_dir = Path(__file__).resolve().parents[2]
+    base_dir = find_repo_root()
     df = pd.read_csv(base_dir / config.paths.train_data)
 
     # add msg delta columns for both motion sensors

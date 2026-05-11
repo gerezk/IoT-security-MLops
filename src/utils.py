@@ -1,5 +1,6 @@
 import pandas as pd
 from pathlib import Path
+import skops.io as sio
 
 
 def find_repo_root(start: Path | None = None) -> Path:
@@ -35,3 +36,14 @@ def df_sensor_msg_freq(df: pd.DataFrame, ip_address: str, mqtt_msgtype: float) -
     df_copy["delta"] = df_copy["frame.time_epoch"].diff()
 
     return df_copy
+
+def save_model(model, rel_path: Path) -> None:
+    """
+    Saves a trained model to the given path
+    :param model:
+    :param rel_path: relative path from project root to save the model to.
+    :return: None
+    """
+    full_path = find_repo_root() / rel_path
+
+    sio.dump(model, full_path)
