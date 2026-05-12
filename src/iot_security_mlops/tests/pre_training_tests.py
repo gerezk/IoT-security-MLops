@@ -4,8 +4,8 @@ from pydantic import StrictStr
 import json
 from typing import List
 
-from src.config_loader import load_config, Config
-from src.utils import find_repo_root
+from src.iot_security_mlops.config_loader import load_config, Config
+from src.iot_security_mlops.utils import find_repo_root
 
 
 def add_not_null_expectations(expectations_suite: gx.ExpectationSuite, columns: List[str]):
@@ -31,7 +31,7 @@ def add_sensor_msg_delta(df_: pd.DataFrame, ip: str, msgtype: float):
 
     return df_
 
-def main(config: Config):
+def run_pre_train_tests(config: Config):
 
     # create data context
     context = gx.get_context(mode="ephemeral")
@@ -124,4 +124,4 @@ def main(config: Config):
 
 if __name__ == "__main__":
     config_path = find_repo_root() / 'config.yaml'
-    main(load_config(config_path))
+    run_pre_train_tests(load_config(config_path))

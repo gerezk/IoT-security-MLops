@@ -1,9 +1,9 @@
 from config_loader import load_config
 
-from src.utils import find_repo_root
-from src.data.load_data import load_training_data
-from src.models.train_model import train_random_forest
-from src.utils import save_model
+from src.iot_security_mlops.utils import find_repo_root
+from src.iot_security_mlops.data.load_data import load_training_data
+from src.iot_security_mlops.models.train_model import train_random_forest
+from src.iot_security_mlops.models.save_model import save_model
 
 
 def main(config_file):

@@ -1,6 +1,6 @@
 import urllib.request
 
-from src.utils import find_repo_root
+from src.iot_security_mlops.utils import find_repo_root
 
 
 BASE_URL = "https://doi.org/10.5281/zenodo.20126302"

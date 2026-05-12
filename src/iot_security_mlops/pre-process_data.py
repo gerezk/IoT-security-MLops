@@ -76,8 +76,8 @@ def randomly_inject_attacks(normal_df: pd.DataFrame,
     return df_final
 
 
-raw_dir_path = Path('../data/raw') # must exist
-processed_data_dir = Path('../data/processed')
+raw_dir_path = Path('../../data/raw') # must exist
+processed_data_dir = Path('../../data/processed')
 processed_data_dir.mkdir(exist_ok=True, parents=True)
 specify_col_dtype = {'mqtt.clientid': str,
                      'mqtt.conack.flags': str,
