@@ -6,9 +6,10 @@ Split legitimate_1w.csv into three files:
 """
 
 import pandas as pd
-from pathlib import Path
 import numpy.random as np
 from typing import Dict
+
+from iot_security_mlops.utils_core import find_repo_root
 
 
 def randomly_inject_attacks(normal_df: pd.DataFrame,
@@ -76,8 +77,9 @@ def randomly_inject_attacks(normal_df: pd.DataFrame,
     return df_final
 
 
-raw_dir_path = Path('../../data/raw') # must exist
-processed_data_dir = Path('../../data/processed')
+root = find_repo_root()
+raw_dir_path = root / 'data/raw' # must exist
+processed_data_dir = root / 'data/processed'
 processed_data_dir.mkdir(exist_ok=True, parents=True)
 specify_col_dtype = {'mqtt.clientid': str,
                      'mqtt.conack.flags': str,
