@@ -17,10 +17,21 @@ class IoTSecurityFlow(FlowSpec):
     @step
     def start(self):
 
+        import mlflow
         from iot_security_mlops.config_loader import load_config
 
         config_path = ROOT / "config.yaml"
         self.config = load_config(config_path)
+
+        # ---- MLflow setup ----
+        self.tracking_dir = ROOT / self.config.paths.mlflow_dir
+        self.tracking_dir.mkdir(parents=True, exist_ok=True)
+
+        self.db_path = self.tracking_dir / "mlflow.db"
+        mlflow.set_tracking_uri(f"sqlite:///{self.db_path}")
+
+        self.experiment_name = "iot_security_mlops"
+        mlflow.set_experiment(self.experiment_name)
 
         self.next(self.pre_training_tests)
 
@@ -43,36 +54,26 @@ class IoTSecurityFlow(FlowSpec):
     )
     @step
     def train(self):
-        import mlflow
 
+        import mlflow
         from iot_security_mlops.data.load_data import load_data
         from iot_security_mlops.models.train_model import train_random_forest
 
 
-        # set up directories and db for dumping mlflow outputs
-        tracking_dir = ROOT / self.config.paths.mlflow_dir
-        tracking_dir.mkdir(parents=True, exist_ok=True)
-
-        artifact_dir = tracking_dir / "artifacts"
-        artifact_dir.mkdir(parents=True, exist_ok=True)
-
-        db_path = tracking_dir / "mlflow.db"
-
-        mlflow.set_tracking_uri(f"sqlite:///{db_path}")
-
-        experiment = mlflow.get_experiment_by_name("iot-security-rf")
-        if experiment is None:
-            mlflow.create_experiment(
-                name="iot-security-rf",
-                artifact_location=artifact_dir.resolve().as_uri()
-            )
-
-        mlflow.set_experiment(
-            experiment_name="iot-security-rf"
-        )
-
+        mlflow.set_tracking_uri(f"sqlite:///{self.db_path}")
+        mlflow.set_experiment(self.experiment_name)
         with mlflow.start_run() as run:
             x_train, y_train = load_data(self.config.paths.train_data)
+
+            # artificially induce train smaller than required train set size
+            if self.config.train.use_subset:
+                x_train = x_train.sample(max(1, self.config.train.min_samples - 5))
+                y_train = y_train.loc[x_train.index]
+
+            if len(x_train) < self.config.train.min_samples:
+                mlflow.set_tag("status", "failed")
+                mlflow.set_tag("failure_reason", "insufficient_data")
+                raise RuntimeError(f"Training aborted: too few samples ({len(x_train)})")
 
             model = train_random_forest(x_train, y_train, self.config.train)
 
@@ -102,23 +103,16 @@ class IoTSecurityFlow(FlowSpec):
     )
     @step
     def post_training_tests(self):
-        import mlflow
-        from mlflow.tracking import MlflowClient
 
+        import mlflow
         from iot_security_mlops.models.metrics import evaluate_model
         from iot_security_mlops.data.load_data import load_data
 
 
-        # Reconfigure MLflow tracking
-        tracking_dir = ROOT / self.config.paths.mlflow_dir
-        db_path = tracking_dir / "mlflow.db"
+        mlflow.set_tracking_uri(f"sqlite:///{self.db_path}")
+        mlflow.set_experiment(self.experiment_name)
 
-        mlflow.set_tracking_uri(f"sqlite:///{db_path}")
         model_uri = f"runs:/{self.run_id}/random_forest"
-
-        # client = MlflowClient()
-        # run = client.get_run(self.run_id)
-        # print(run.data.params)
 
         model = mlflow.sklearn.load_model(model_uri)
 
@@ -131,10 +125,11 @@ class IoTSecurityFlow(FlowSpec):
         })
 
         if acc < 0.95 or f1 < 0.95:
-            mlflow.set_tag("model_status", "rejected")
-            raise Exception("Model failed quality gate")
+            mlflow.set_tag("status", "rejected")
+            mlflow.set_tag("rejection_reason", "performance_below_threshold")
+            raise RuntimeError("Model failed quality gate during evaluation.")
         else:
-            mlflow.set_tag("model_status", "approved")
+            mlflow.set_tag("status", "approved")
 
         self.next(self.end)
 

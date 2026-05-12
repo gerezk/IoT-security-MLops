@@ -47,6 +47,9 @@ class TrainConfig(BaseModel):
     min_samples_leaf: int
     random_state: int = 42
 
+    min_samples: int = Field(gt=0)
+    use_subset: bool = False
+
 
 # --- Top-level config model ---
 class Config(BaseModel):

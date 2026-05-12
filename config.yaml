@@ -14,3 +14,6 @@ train:
   min_samples_split: 2
   min_samples_leaf: 1
   random_state: 42
+
+  min_samples: 1000
+  use_subset: true
