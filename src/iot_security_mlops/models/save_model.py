@@ -1,7 +1,7 @@
 from pathlib import Path
 import skops.io as sio
 
-from src.iot_security_mlops.utils import find_repo_root
+from iot_security_mlops.utils import find_repo_root
 
 
 def save_model(model, rel_path: Path) -> None:

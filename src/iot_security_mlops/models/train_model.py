@@ -1,7 +1,7 @@
 from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
 
-from src.iot_security_mlops.config_loader import TrainConfig
+from iot_security_mlops.config_loader import TrainConfig
 
 
 def train_random_forest(x_train: pd.DataFrame, y_train: pd.Series, config: TrainConfig) -> RandomForestClassifier:

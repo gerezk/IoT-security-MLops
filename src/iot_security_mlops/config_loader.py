@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field, model_validator
 import yaml
 from typing import Optional, Literal
 
-from src.iot_security_mlops.utils import find_repo_root
+from iot_security_mlops.utils import find_repo_root
 
 
 class PathConfig(BaseModel):
