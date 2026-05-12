@@ -5,17 +5,14 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.append(str(ROOT / "src"))
 
 from metaflow import FlowSpec, step, pypi
+from iot_security_mlops.utils_core import load_requirements
 
 
 class IoTSecurityFlow(FlowSpec):
 
     @pypi(
-        python='3.12',
-        packages={
-            'pydantic': '2.12.5',
-            'PyYAML': '6.0.3',
-            'pandas': '2.3.3'
-        }
+        python='3.11',
+        packages=load_requirements(ROOT / 'requirements/start.txt')
     )
     @step
     def start(self):
@@ -28,11 +25,8 @@ class IoTSecurityFlow(FlowSpec):
         self.next(self.pre_training_tests)
 
     @pypi(
-        python='3.12',
-        packages={
-            'great_expectations': '1.16.0',
-            'PyYAML': '6.0.3'
-        }
+        python='3.11',
+        packages=load_requirements(ROOT / 'requirements/pre_training_tests.txt')
     )
     @step
     def pre_training_tests(self):
@@ -44,14 +38,8 @@ class IoTSecurityFlow(FlowSpec):
         self.next(self.train)
 
     @pypi(
-        python='3.12',
-        packages={
-            'pandas': '2.3.3',
-            'scikit-learn': '1.8.0',
-            'skops': '0.14.0',
-            'pydantic': '2.12.5',
-            'PyYAML': '6.0.3'
-        }
+        python='3.11',
+        packages=load_requirements(ROOT / 'requirements/training.txt')
     )
     @step
     def train(self):

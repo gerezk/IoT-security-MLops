@@ -5,7 +5,7 @@ import json
 from typing import List
 
 from iot_security_mlops.config_loader import load_config, Config
-from iot_security_mlops.utils import find_repo_root
+from iot_security_mlops.utils_core import find_repo_root
 
 
 def add_not_null_expectations(expectations_suite: gx.ExpectationSuite, columns: List[str]):

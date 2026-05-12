@@ -64,14 +64,16 @@ tbd
 tbd
 
 ## 🛠️ Tech Stack
-- Python (3.12)
-- Testing
-  - Great Expectations
+- Python (3.11)
 - Data Processing
   - pandas
   - NumPy
 - Machine learning
   - Scikit-learn
+- Orchestration
+  - Metaflow
+- Testing
+  - Great Expectations
 
 ## ▶️ How to Run
 
@@ -94,6 +96,14 @@ Build container:
 
 ```
 docker build --platform=linux/amd64 -t mqtt-mlops .
+```
+
+Download data:
+
+```
+docker run --platform=linux/amd64 -it \
+  -v $(pwd)/data/processed:/app/data/processed \
+  mqtt-mlops python src/iot_security_mlops/data/download_zenodo.py
 ```
 
 Cache micromamba + all pypi envs:

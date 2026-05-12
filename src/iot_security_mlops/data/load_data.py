@@ -2,7 +2,7 @@ import pandas as pd
 from pathlib import Path
 from typing import Tuple
 
-from iot_security_mlops.utils import find_repo_root
+from iot_security_mlops.utils_core import find_repo_root
 
 
 def drop_cols(df: pd.DataFrame) -> pd.DataFrame:

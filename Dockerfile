@@ -20,7 +20,7 @@ ARG MAMBA_DOCKERFILE_ACTIVATE=1
 COPY . .
 
 # Install orchestrator dependencies
-RUN pip install -r requirements.txt
+RUN pip install -r requirements/base.txt
 
 # Install local package
 RUN pip install -e .
