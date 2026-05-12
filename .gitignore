@@ -1,8 +1,9 @@
-# data dir
+# custom
 data/
 !src/iot_security_mlops/data/
 output/
 test_results/
+.metaflow/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

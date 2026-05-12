@@ -1,12 +1,35 @@
 # MLops Pipeline for Predicting Cyberattacks against an IoT Network
 
-## 📌 TL;DR
-
-tbw
-
 ## 🚀 Overview
 
-tbw
+This project implements an end-to-end MLOps pipeline for anomaly and attack detection in MQTT-based IoT network traffic. 
+The pipeline processes raw packet captures exported from Wireshark, validates dataset quality using Great Expectations, 
+trains machine learning models for network intrusion detection, and supports fully reproducible execution using Docker.
+
+Repository Structure:
+
+```md
+├── config.yaml
+├── Dockerfile
+├── notebooks
+│   ├── model_training.ipynb
+│   ├── msg_freq_validation.ipynb
+│   └── pre-training_analysis.ipynb
+├── requirements.txt
+├── run_pipeline.sh
+└── src
+    ├── config_loader.py
+    ├── data
+    │   ├── download_zenodo.py
+    │   └── load_data.py
+    ├── models
+    │   └── train_model.py
+    ├── pre-process_data.py
+    ├── tests
+    │   └── pre-training-test.py
+    ├── train.py
+    └── utils.py
+```
 
 ## 📊🔍 Message Frequency Validation
 
@@ -48,7 +71,7 @@ tbd
   - pandas
   - NumPy
 - Machine learning
-  - tbd
+  - Scikit-learn
 
 ## ▶️ How to Run
 
@@ -70,42 +93,21 @@ open -a Docker
 Build container:
 
 ```
-docker build -t mqtt-mlops .
+docker build --platform=linux/amd64 -t mqtt-mlops .
+```
+
+Cache micromamba + all pypi envs:
+```
+docker volume create metaflow-cache
 ```
 
 Run container:
 
 ```
-docker run -it \
-  -v $(pwd)/data/processed:/app/data/processed \
-  -v $(pwd)/test_results:/app/test_results \
-  mqtt-mlops
-```
-
-### Virtual Environment
-
-The repository is only guaranteed to work with Python 3.12.
-
-```
-python3.12 -m venv .venv
-```
-
-If using Mac/Linux:
-
-```
-source .venv/bin/activate
-```
-
-If using Windows:
-
-```
-.venv\Scripts\activate
-```
-
-Install requirements:
-
-```
-pip install -r requirements.txt
+docker run --platform=linux/amd64 -it \
+ -v metaflow-cache:/app/.metaflow \
+ -v $(pwd)/data:/app/data \
+ mqtt-mlops
 ```
 
 ## ℹ️ Sources
@@ -120,5 +122,5 @@ More information can be found in the paper
 ([DOI: 10.3390/s20226578](https://doi.org/10.3390/s20226578)).
 
 The pre-processed datasets can be found at 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19663452.svg)](https://doi.org/10.5281/zenodo.19663452).
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19663451.svg)](https://doi.org/10.5281/zenodo.19663451).
 These datasets are also licensed under the [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) license.
