@@ -78,10 +78,10 @@ accuracy and F1 score</ins> will be used for testing model robustness. The noteb
 random forest model achieves a test accuracy of 98.1% and an F1 score of 0.979.
 
 During the training step, an artificial failure scenario was introduced by enforcing a minimum dataset size threshold of 
-1000 samples. If the dataset falls below this threshold, the pipeline is aborted to prevent training on insufficient data, 
-which could lead to overfitting and unreliable model performance. This design choice reflects a fail-fast strategy where 
-invalid or insufficient input data should halt execution early rather than propagate errors into downstream model 
-artifacts.
+1000 samples, which can be triggered by setting `use_subset: true` in `config.yaml`. If the dataset falls below this 
+threshold, the pipeline is aborted to prevent training on insufficient data, which could lead to overfitting and 
+unreliable model performance. This design choice reflects a fail-fast strategy where invalid or insufficient input data 
+should halt execution early rather than propagate errors into downstream model artifacts.
 
 ### Post-deployment Tests
 
