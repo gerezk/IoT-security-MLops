@@ -13,7 +13,8 @@ class IoTSecurityFlow(FlowSpec):
         python='3.12',
         packages={
             'pydantic': '2.12.5',
-            'PyYAML': '6.0.3'
+            'PyYAML': '6.0.3',
+            'pandas': '2.3.3'
         }
     )
     @step
@@ -29,7 +30,8 @@ class IoTSecurityFlow(FlowSpec):
     @pypi(
         python='3.12',
         packages={
-            'great_expectations': '1.16.0'
+            'great_expectations': '1.16.0',
+            'PyYAML': '6.0.3'
         }
     )
     @step
@@ -46,7 +48,9 @@ class IoTSecurityFlow(FlowSpec):
         packages={
             'pandas': '2.3.3',
             'scikit-learn': '1.8.0',
-            'skops': '0.14.0'
+            'skops': '0.14.0',
+            'pydantic': '2.12.5',
+            'PyYAML': '6.0.3'
         }
     )
     @step
