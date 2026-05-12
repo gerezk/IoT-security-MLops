@@ -45,7 +45,7 @@ class IoTSecurityFlow(FlowSpec):
     def train(self):
         import mlflow
 
-        from iot_security_mlops.data.load_data import load_training_data
+        from iot_security_mlops.data.load_data import load_data
         from iot_security_mlops.models.train_model import train_random_forest
 
 
@@ -71,8 +71,8 @@ class IoTSecurityFlow(FlowSpec):
             experiment_name="iot-security-rf"
         )
 
-        with mlflow.start_run():
-            x_train, y_train = load_training_data(self.config.paths.train_data)
+        with mlflow.start_run() as run:
+            x_train, y_train = load_data(self.config.paths.train_data)
 
             model = train_random_forest(x_train, y_train, self.config.train)
 
@@ -82,18 +82,61 @@ class IoTSecurityFlow(FlowSpec):
                 serialization_format="skops"
             )
 
-        self.next(self.end)
-      #  self.next(self.robustness)
+            mlflow.log_params({
+                "model_type": "RandomForestClassifier",
+                "n_estimators": self.config.train.n_estimators,
+                'criterion': self.config.train.criterion,
+                "max_depth": self.config.train.max_depth,
+                "min_samples_split": self.config.train.min_samples_split,
+                "min_samples_leaf": self.config.train.min_samples_leaf,
+                "random_state": self.config.train.random_state,
+            })
 
-    # @docker(image="iot-robustness:latest")
-    # @step
-    # def robustness(self):
-    #
-    #     from src.validation.robustness_validation import validate_model
-    #
-    #     validate_model(self.model_path)
-    #
-    #     self.next(self.end)
+            self.run_id = run.info.run_id
+
+        self.next(self.post_training_tests)
+
+    @pypi(
+        python='3.11',
+        packages=load_requirements(ROOT / 'requirements/post_training_tests.txt')
+    )
+    @step
+    def post_training_tests(self):
+        import mlflow
+        from mlflow.tracking import MlflowClient
+
+        from iot_security_mlops.models.metrics import evaluate_model
+        from iot_security_mlops.data.load_data import load_data
+
+
+        # Reconfigure MLflow tracking
+        tracking_dir = ROOT / self.config.paths.mlflow_dir
+        db_path = tracking_dir / "mlflow.db"
+
+        mlflow.set_tracking_uri(f"sqlite:///{db_path}")
+        model_uri = f"runs:/{self.run_id}/random_forest"
+
+        # client = MlflowClient()
+        # run = client.get_run(self.run_id)
+        # print(run.data.params)
+
+        model = mlflow.sklearn.load_model(model_uri)
+
+        x_test, y_test = load_data(self.config.paths.test_data)
+        acc, f1 = evaluate_model(model, x_test, y_test)
+
+        mlflow.log_metrics({
+            "accuracy": acc,
+            "f1_score": f1,
+        })
+
+        if acc < 0.95 or f1 < 0.95:
+            mlflow.set_tag("model_status", "rejected")
+            raise Exception("Model failed quality gate")
+        else:
+            mlflow.set_tag("model_status", "approved")
+
+        self.next(self.end)
 
     @step
     def end(self):

@@ -3,10 +3,11 @@ import urllib.request
 from iot_security_mlops.utils_core import find_repo_root
 
 
-BASE_URL = "https://doi.org/10.5281/zenodo.20126302"
+BASE_URL = "https://doi.org/10.5281/zenodo.19663451"
 
 FILES = [
-    "training.csv",
+    "train.csv",
+    "test.csv",
     "reference.csv",
     "post-deployment.csv",
 ]
