@@ -3,7 +3,7 @@ paths: # relative to project root
   deployment_data: data/processed/post-deployment.csv
 
   test_results_dir: output/test_results
-  model_dir: output/train_artifacts
+  mlflow_dir: output/mlflow
 
 # default config for random forest in sklearn
 train:

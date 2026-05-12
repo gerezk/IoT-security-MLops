@@ -11,7 +11,7 @@ class PathConfig(BaseModel):
     deployment_data: Path
 
     test_results_dir: Path
-    model_dir: Path
+    mlflow_dir: Path
 
     @model_validator(mode="after")
     def validate_paths(self):
@@ -29,7 +29,7 @@ class PathConfig(BaseModel):
 
         # create output dirs automatically
         (base_dir / self.test_results_dir).mkdir(parents=True, exist_ok=True)
-        (base_dir / self.model_dir).mkdir(parents=True, exist_ok=True)
+        (base_dir / self.mlflow_dir).mkdir(parents=True, exist_ok=True)
 
         return self
 

@@ -43,16 +43,44 @@ class IoTSecurityFlow(FlowSpec):
     )
     @step
     def train(self):
+        import mlflow
 
         from iot_security_mlops.data.load_data import load_training_data
         from iot_security_mlops.models.train_model import train_random_forest
-        from iot_security_mlops.models.save_model import save_model
 
-        x_train, y_train = load_training_data(self.config.paths.train_data)
 
-        model = train_random_forest(x_train, y_train, self.config.train)
+        # set up directories and db for dumping mlflow outputs
+        tracking_dir = ROOT / self.config.paths.mlflow_dir
+        tracking_dir.mkdir(parents=True, exist_ok=True)
 
-        save_model(model, self.config.paths.model_dir / 'random_forest.skops')
+        artifact_dir = tracking_dir / "artifacts"
+        artifact_dir.mkdir(parents=True, exist_ok=True)
+
+        db_path = tracking_dir / "mlflow.db"
+
+        mlflow.set_tracking_uri(f"sqlite:///{db_path}")
+
+        experiment = mlflow.get_experiment_by_name("iot-security-rf")
+        if experiment is None:
+            mlflow.create_experiment(
+                name="iot-security-rf",
+                artifact_location=artifact_dir.resolve().as_uri()
+            )
+
+        mlflow.set_experiment(
+            experiment_name="iot-security-rf"
+        )
+
+        with mlflow.start_run():
+            x_train, y_train = load_training_data(self.config.paths.train_data)
+
+            model = train_random_forest(x_train, y_train, self.config.train)
+
+            mlflow.sklearn.log_model(
+                sk_model=model,
+                name="random_forest",
+                serialization_format="skops"
+            )
 
         self.next(self.end)
       #  self.next(self.robustness)
