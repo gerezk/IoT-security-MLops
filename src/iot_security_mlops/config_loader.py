@@ -8,6 +8,7 @@ from iot_security_mlops.utils_core import find_repo_root
 
 class PathConfig(BaseModel):
     train_data: Path
+    test_data: Path
     deployment_data: Path
 
     test_results_dir: Path
@@ -21,6 +22,10 @@ class PathConfig(BaseModel):
         if not (base_dir / self.train_data).exists():
             raise FileNotFoundError(
                 f"Train data does not exist: {self.train_data}"
+            )
+        if not (base_dir / self.test_data).exists():
+            raise FileNotFoundError(
+                f"Test data does not exist: {self.test_data}"
             )
         if not (base_dir / self.deployment_data).exists():
             raise FileNotFoundError(

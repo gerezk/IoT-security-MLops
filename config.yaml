@@ -1,5 +1,6 @@
 paths: # relative to project root
-  train_data: data/processed/training.csv
+  train_data: data/processed/train.csv
+  test_data: data/processed/test.csv
   deployment_data: data/processed/post-deployment.csv
 
   test_results_dir: output/test_results

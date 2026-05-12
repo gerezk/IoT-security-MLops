@@ -25,9 +25,9 @@ def drop_cols(df: pd.DataFrame) -> pd.DataFrame:
     return df_copy
 
 
-def load_training_data(path: Path) -> Tuple[pd.DataFrame, pd.Series]:
+def load_data(path: Path) -> Tuple[pd.DataFrame, pd.Series]:
     """
-    Load training data and encode categorical columns.
+    Load processed data csv and encode categorical columns.
     :param path: relative path to training data from project root
     :return: x, y
     """

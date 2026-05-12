@@ -109,11 +109,17 @@ for file in raw_dir_path.iterdir():
 df_end = df_normal.iloc[-200_000:].copy() # take last 200k normal packets
 df_end['class'] = 'legitimate'
 rng_training = np.default_rng(1)
-# --- create training.csv ---
-# first half of df_end then randomly inject attack packets
-df_train = df_end.iloc[0:100_000]
+# --- create train.csv ---
+# first half of df_end, take 80%, then randomly inject attack packets
+df_train = df_end.iloc[0:80_000]
 df_train = randomly_inject_attacks(df_train, dfs_attack, rng_training)
-df_train.to_csv(processed_data_dir / 'training.csv', index=False)
+df_train.to_csv(processed_data_dir / 'train.csv', index=False)
+
+# --- create test.csv ---
+# first half of df_end, take last 20%, then randomly inject attack packets
+df_test = df_end.iloc[80_000:100_000]
+df_test = randomly_inject_attacks(df_test, dfs_attack, rng_training)
+df_test.to_csv(processed_data_dir / 'test.csv', index=False)
 
 # --- create post-deployment.csv ---
 # second half of df_end then randomly inject attack packets
