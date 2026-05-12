@@ -4,31 +4,41 @@
 
 This project implements an end-to-end MLOps pipeline for anomaly and attack detection in MQTT-based IoT network traffic. 
 The pipeline processes raw packet captures exported from Wireshark, validates dataset quality using Great Expectations, 
-trains machine learning models for network intrusion detection, and supports fully reproducible execution using Docker.
+trains a <ins>random forest</ins> model for network intrusion detection, and supports fully reproducible execution using Docker.
 
 Repository Structure:
 
 ```md
 ├── config.yaml
 ├── Dockerfile
+├── flows
+│   └── training_flow.py
 ├── notebooks
 │   ├── model_training.ipynb
 │   ├── msg_freq_validation.ipynb
 │   └── pre-training_analysis.ipynb
-├── requirements.txt
-├── run_pipeline.sh
+├── pyproject.toml
+├── requirements
+│   ├── base.txt
+│   ├── post_training_tests.txt
+│   ├── pre_training_tests.txt
+│   ├── start.txt
+│   └── training.txt
 └── src
-    ├── config_loader.py
-    ├── data
-    │   ├── download_zenodo.py
-    │   └── load_data.py
-    ├── models
-    │   └── train_model.py
-    ├── pre-process_data.py
-    ├── tests
-    │   └── pre-training-test.py
-    ├── train.py
-    └── utils.py
+    └── iot_security_mlops
+        ├── config_loader.py
+        ├── data
+        │   ├── download_zenodo.py
+        │   └── load_data.py
+        ├── models
+        │   ├── metrics.py
+        │   └── train_model.py
+        ├── pre-process_data.py
+        ├── tests
+        │   └── pre_training_tests.py
+        ├── train.py
+        ├── utils_core.py
+        └── utils_data.py
 ```
 
 ## 📊🔍 Message Frequency Validation
@@ -57,7 +67,21 @@ The implementation of the tests can be found in `../src/tests/pre-training-test.
 
 ### Pre-deployment Tests
 
-tbd
+The dataset creators tested several ML models on the MQTT dataset, including random forest. Their random forest scored
+a test accuracy of 99.4% and an F1 score of 0.994. However, this dataset is heavily imbalanced; malicious packets only 
+make up about 1% of the dataset. The authors showed that using a balanced version with 50% normal packets and 50% 
+malicious packets leads to a drop in performance. With the balanced dataset, their random forest achieved a test accuracy 
+of 91.6% and an F1 score of 0.914.
+
+The dataset consutrcted for this project consists of about 5% malicious packets. Therefore, <ins>a threshold of 0.95 for both
+accuracy and F1 score</ins> will be used for testing model robustness. The notebook `model_training` shows that a default
+random forest model achieves a test accuracy of 98.1% and an F1 score of 0.979.
+
+During the training step, an artificial failure scenario was introduced by enforcing a minimum dataset size threshold of 
+1000 samples. If the dataset falls below this threshold, the pipeline is aborted to prevent training on insufficient data, 
+which could lead to overfitting and unreliable model performance. This design choice reflects a fail-fast strategy where 
+invalid or insufficient input data should halt execution early rather than propagate errors into downstream model 
+artifacts.
 
 ### Post-deployment Tests
 
@@ -72,6 +96,8 @@ tbd
   - Scikit-learn
 - Orchestration
   - Metaflow
+- Versioning
+  - mlflow
 - Testing
   - Great Expectations
 
@@ -117,6 +143,7 @@ Run container:
 docker run --platform=linux/amd64 -it \
  -v metaflow-cache:/app/.metaflow \
  -v $(pwd)/data:/app/data \
+ -v $(pwd)/output:/app/output \
  mqtt-mlops
 ```
 
