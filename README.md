@@ -85,7 +85,12 @@ should halt execution early rather than propagate errors into downstream model a
 
 ### Post-deployment Tests
 
-tbd
+The sensor messaging frequency is monitored via `flows/monitoring_flows.py`. The flow checks if the messaging frequency 
+for each sensor in the post-deployment data is different from the training data using the two-sample Kolmogorov-Smirnov 
+(K-S) test. This is a non-parametric statistical test used to determine if two samples come from the same underlying 
+distribution. 
+
+Drift can be injected using `config.yaml`, as well as controlling the significance threshold.
 
 ## 🛠️ Tech Stack
 - Python (3.11)
