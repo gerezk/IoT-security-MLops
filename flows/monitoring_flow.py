@@ -19,7 +19,7 @@ class MonitoringFlow(FlowSpec):
 
     @pypi(
         python='3.11',
-        packages=load_requirements(ROOT / 'requirements/start.txt')
+        packages=load_requirements(ROOT / 'requirements/monitoring_flow/start.txt')
     )
     @step
     def start(self):
@@ -48,7 +48,7 @@ class MonitoringFlow(FlowSpec):
 
     @pypi(
         python='3.11',
-        packages=load_requirements(ROOT / 'requirements/drift_tests.txt')
+        packages=load_requirements(ROOT / 'requirements/monitoring_flow/drift_tests.txt')
     )
     @step
     def detect_drift(self):

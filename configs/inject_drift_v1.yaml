@@ -1,0 +1,24 @@
+paths: # relative to project root
+  train_data: data/processed/train.csv
+  test_data: data/processed/test.csv
+  deployment_data: data/processed/post-deployment.csv
+
+  test_results_dir: output/test_results
+  mlflow_dir: output/mlflow
+
+# default config for random forest in sklearn
+train:
+  n_estimators: 100
+  criterion: gini
+  max_depth:
+  min_samples_split: 2
+  min_samples_leaf: 1
+  random_state: 42
+
+  min_samples: 1000
+  use_subset: false
+
+drift:
+  inject_drift: true
+  sensor_ip: "192.168.0.152" # perturb data from humidity sensor
+  alpha: 0.05

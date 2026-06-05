@@ -19,7 +19,7 @@ class IoTSecurityFlow(FlowSpec):
 
     @pypi(
         python='3.11',
-        packages=load_requirements(ROOT / 'requirements/start.txt')
+        packages=load_requirements(ROOT / 'requirements/training_flow/start.txt')
     )
     @step
     def start(self):
@@ -49,7 +49,7 @@ class IoTSecurityFlow(FlowSpec):
 
     @pypi(
         python='3.11',
-        packages=load_requirements(ROOT / 'requirements/pre_training_tests.txt')
+        packages=load_requirements(ROOT / 'requirements/training_flow/pre_training_tests.txt')
     )
     @step
     def pre_training_tests(self):
@@ -62,7 +62,7 @@ class IoTSecurityFlow(FlowSpec):
 
     @pypi(
         python='3.11',
-        packages=load_requirements(ROOT / 'requirements/training.txt')
+        packages=load_requirements(ROOT / 'requirements/training_flow/training.txt')
     )
     @step
     def train(self):
@@ -122,7 +122,7 @@ class IoTSecurityFlow(FlowSpec):
 
     @pypi(
         python='3.11',
-        packages=load_requirements(ROOT / 'requirements/post_training_tests.txt')
+        packages=load_requirements(ROOT / 'requirements/training_flow/post_training_tests.txt')
     )
     @step
     def post_training_tests(self):
