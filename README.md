@@ -83,7 +83,7 @@ threshold, the pipeline is aborted to prevent training on insufficient data, whi
 unreliable model performance. This design choice reflects a fail-fast strategy where invalid or insufficient input data 
 should halt execution early rather than propagate errors into downstream model artifacts.
 
-### Post-deployment Tests
+### Drift Test
 
 The sensor messaging frequency is monitored via `flows/monitoring_flows.py`. The flow checks if the messaging frequency 
 for each sensor in the post-deployment data is different from the training data using the two-sample Kolmogorov-Smirnov 
@@ -91,6 +91,14 @@ for each sensor in the post-deployment data is different from the training data 
 distribution. 
 
 Drift can be injected using `config.yaml`, as well as controlling the significance threshold.
+
+### AB Test
+
+The post-deployment data is used for AB testing. The data is split by sensor, then by malicious packets. First, the
+data is randomly, evenly split based on sensor; packets to and from 5 sensors are marked for A, then packets to 
+and from the other 5 sensors are marked for B. Then, a stratified, even split is applied to the malicious packets. For each
+set (A/B), the indices for the normal and malicious packets are combined. These indices are then passed to their respective
+branches.
 
 ## 🛠️ Tech Stack
 - Python (3.11)

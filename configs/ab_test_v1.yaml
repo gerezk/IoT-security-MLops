@@ -1,0 +1,24 @@
+paths: # relative to project root
+  train_data: data/processed/train.csv
+  test_data: data/processed/test.csv
+  deployment_data: data/processed/post-deployment.csv
+
+  test_results_dir: output/test_results
+  mlflow_dir: output/mlflow
+
+AB_test:
+  seed: 42
+  config_versions:
+    a: train_baseline_v1
+    b: train_more_trees_v1
+  sensor_ips:
+    - 192.168.0.151
+    - 192.168.0.150
+    - 192.168.0.152
+    - 192.168.0.154
+    - 192.168.0.155
+    - 192.168.0.180
+    - 192.168.0.173
+    - 192.168.0.176
+    - 192.168.0.178
+    - 192.168.0.174

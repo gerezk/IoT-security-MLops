@@ -32,4 +32,4 @@ ENV METAFLOW_HOME=/app/.metaflow
 ENV PATH="/opt/conda/bin:$PATH"
 
 # Default command
-CMD ["python", "-m", "flows.training_flow", "--environment=pypi", "run", "--config", "config.yaml"]
+CMD ["bash", "run_pipeline.sh"]

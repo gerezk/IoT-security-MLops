@@ -59,6 +59,13 @@ class ConfigVersions(BaseModel):
     a: str
     b: str
 
+
+class ABTestConfig(BaseModel):
+    seed: int = 42
+    config_versions: ConfigVersions
+    sensor_ips: list[str]
+
+
 # --- Shared config ---
 class BaseFlowConfig(BaseModel):
     paths: PathConfig
@@ -71,7 +78,7 @@ class MonitoringFlowConfig(BaseFlowConfig):
     drift: DriftTestsConfig
 
 class ABTestFlowConfig(BaseFlowConfig):
-    config_versions: ConfigVersions
+    AB_test: ABTestConfig
 
 
 T = TypeVar("T", bound=BaseModel)
