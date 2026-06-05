@@ -1,6 +1,6 @@
 import requests
 
-from iot_security_mlops.utils_core import find_repo_root
+from iot_security_mlops.utils.utils_core import find_repo_root
 
 
 DOI = "10.5281/zenodo.19663451"

@@ -4,12 +4,18 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.append(str(ROOT / "src"))
 
-from metaflow import FlowSpec, step, pypi
-from iot_security_mlops.utils_core import load_requirements
+from metaflow import FlowSpec, step, pypi, Parameter
+from iot_security_mlops.utils.utils_core import load_requirements
 
 
 class IoTSecurityFlow(FlowSpec):
     # metaflow breaks with custom __init__
+    config_name = Parameter(
+        "config",
+        help="Full config file name in configs dir",
+        required=True,
+        type=str,
+    )
 
     @pypi(
         python='3.11',
@@ -20,15 +26,14 @@ class IoTSecurityFlow(FlowSpec):
 
         import mlflow
 
-        from iot_security_mlops.utils_mlflow import initialize_flow_environment
-
+        from iot_security_mlops.utils.utils_mlflow import initialize_flow_environment
 
         (
             self.config_path,
             self.config,
             self.artifact_dir,
             self.db_path,
-        ) = initialize_flow_environment(ROOT)
+        ) = initialize_flow_environment(ROOT, self.config_name)
 
         self.experiment_name = "iot_security_mlops"
         experiment = mlflow.get_experiment_by_name(self.experiment_name)
@@ -38,6 +43,9 @@ class IoTSecurityFlow(FlowSpec):
                 artifact_location=self.artifact_dir.resolve().as_uri()
             )
         mlflow.set_experiment(self.experiment_name)
+
+        mlflow.log_artifact(str(self.config_path))
+        mlflow.set_tag("config_version", self.config_name)
 
         self.next(self.pre_training_tests)
 
@@ -97,6 +105,9 @@ class IoTSecurityFlow(FlowSpec):
                 "min_samples_split": self.config.train.min_samples_split,
                 "min_samples_leaf": self.config.train.min_samples_leaf,
                 "random_state": self.config.train.random_state,
+
+                "min_samples": self.config.train.min_samples,
+                "use_subset": self.config.train.use_subset
             })
 
             self.run_id = run.info.run_id

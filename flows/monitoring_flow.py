@@ -4,12 +4,18 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.append(str(ROOT / "src"))
 
-from metaflow import FlowSpec, step, pypi
-from iot_security_mlops.utils_core import load_requirements
+from metaflow import FlowSpec, step, pypi, Parameter
+from iot_security_mlops.utils.utils_core import load_requirements
 
 
 class MonitoringFlow(FlowSpec):
     # metaflow breaks with custom __init__
+    config_name = Parameter(
+        "config",
+        help="Full config file name in configs dir",
+        required=True,
+        type=str,
+    )
 
     @pypi(
         python='3.11',
@@ -19,7 +25,7 @@ class MonitoringFlow(FlowSpec):
     def start(self):
 
         import mlflow
-        from iot_security_mlops.utils_mlflow import initialize_flow_environment
+        from iot_security_mlops.utils.utils_mlflow import initialize_flow_environment
 
 
         (
@@ -27,7 +33,7 @@ class MonitoringFlow(FlowSpec):
             self.config,
             self.artifact_dir,
             self.db_path,
-        ) = initialize_flow_environment(ROOT)
+        ) = initialize_flow_environment(ROOT, self.config_name)
 
         self.experiment_name = "drift_tests"
         experiment = mlflow.get_experiment_by_name(self.experiment_name)
@@ -37,6 +43,9 @@ class MonitoringFlow(FlowSpec):
                 artifact_location=self.artifact_dir.resolve().as_uri()
             )
         mlflow.set_experiment(self.experiment_name)
+
+        mlflow.log_artifact(str(self.config_path))
+        mlflow.set_tag("config_version", self.config_name)
 
         self.next(self.detect_drift)
 
@@ -52,7 +61,7 @@ class MonitoringFlow(FlowSpec):
 
         from iot_security_mlops.data.load_data import load_data
         from iot_security_mlops.tests.drift_detection import run_msg_freq_drift_detection
-        from iot_security_mlops.utils_data import df_all_sensor_msg_freq
+        from iot_security_mlops.utils.utils_data import df_all_sensor_msg_freq
 
 
         reference, _ = load_data(self.config.paths.train_data, False, False)
@@ -65,6 +74,10 @@ class MonitoringFlow(FlowSpec):
         reference_msg_freq = reference_msg_freq.dropna(subset=["msg_freq"])
         deployment_msg_freq = deployment_msg_freq.dropna(subset=["msg_freq"])
 
+        mlflow.log_params({"inject_drift": self.config.drift.inject_drift,
+                           "sensor_ip": self.config.drift.sensor_ip,
+                           "alpha": self.config.drift.alpha})
+
         if self.config.drift.inject_drift:
             # double message frequency for the given sensor
             deployment_msg_freq.loc[deployment_msg_freq['ip.src'] == self.config.drift.sensor_ip, 'msg_freq'] *= 2
@@ -73,8 +86,6 @@ class MonitoringFlow(FlowSpec):
         mlflow.set_experiment(self.experiment_name)
 
         with mlflow.start_run():
-            mlflow.log_artifact(str(self.config_path), artifact_path="config")
-
             msg_freq_drift_results = run_msg_freq_drift_detection(
                 reference_df=reference_msg_freq,
                 current_df=deployment_msg_freq,
@@ -100,7 +111,7 @@ class MonitoringFlow(FlowSpec):
             with open(drift_report_path, "w") as f:
                 json.dump(msg_freq_drift_results, f, indent=2)
 
-            mlflow.log_artifact(str(drift_report_path), artifact_path="monitoring_reports")
+            mlflow.log_artifact(str(drift_report_path))
 
         self.next(self.end)
 

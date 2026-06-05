@@ -4,15 +4,16 @@ import mlflow
 from iot_security_mlops.config_loader import load_config, Config
 
 
-def initialize_flow_environment(root: Path) -> tuple[Path, Config, Path, Path]:
+def initialize_flow_environment(root: Path, config_name: str) -> tuple[Path, Config, Path, Path]:
     """
     Loads config and initializes MLflow tracking.
     :param root: Path to the project root.
+    :param config_name: Full config file name in configs dir.
     :return: tuple
-        (config_path, config, artifact_dir, db_path)
+        (abs_config_path, config, artifact_dir, db_path)
     """
 
-    config_path = root / "config.yaml"
+    config_path = root / "configs" / config_name
     config = load_config(config_path)
 
     tracking_dir = root / config.paths.mlflow_dir

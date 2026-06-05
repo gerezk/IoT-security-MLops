@@ -9,7 +9,7 @@ import pandas as pd
 import numpy.random as np
 from typing import Dict
 
-from iot_security_mlops.utils_core import find_repo_root
+from iot_security_mlops.utils.utils_core import find_repo_root
 
 
 def randomly_inject_attacks(normal_df: pd.DataFrame,
