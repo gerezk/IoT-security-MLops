@@ -1,10 +1,11 @@
 import sys
 from pathlib import Path
 
+from metaflow import FlowSpec, step, pypi, Parameter
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.append(str(ROOT / "src"))
 
-from metaflow import FlowSpec, step, pypi, Parameter
 from iot_security_mlops.utils.utils_core import load_requirements
 
 
@@ -27,14 +28,18 @@ class IoTSecurityFlow(FlowSpec):
         import mlflow
 
         from iot_security_mlops.utils.utils_mlflow import initialize_flow_environment
+        from iot_security_mlops.config_loader import TrainingFlowConfig
 
         self.config_name = self.config_file.split(".")[0]
+
         (
             self.config_path,
             self.config,
             self.artifact_dir,
             self.db_path,
-        ) = initialize_flow_environment(ROOT, self.config_file)
+        ) = initialize_flow_environment(ROOT, self.config_file, TrainingFlowConfig)
+
+        self.config.paths.create_output_dirs()
 
         self.experiment_name = "iot_security_mlops"
         experiment = mlflow.get_experiment_by_name(self.experiment_name)

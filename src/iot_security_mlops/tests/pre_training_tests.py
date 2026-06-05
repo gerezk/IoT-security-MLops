@@ -4,7 +4,7 @@ from pydantic import StrictStr
 import json
 from typing import List
 
-from iot_security_mlops.config_loader import load_config, Config
+from iot_security_mlops.config_loader import load_config, TrainingFlowConfig
 from iot_security_mlops.utils.utils_core import find_repo_root
 
 
@@ -31,8 +31,8 @@ def add_sensor_msg_delta(df_: pd.DataFrame, ip: str, msgtype: float):
 
     return df_
 
-def run_pre_train_tests(config: Config):
 
+def run_pre_train_tests(config: TrainingFlowConfig):
     # create data context
     context = gx.get_context(mode="ephemeral")
 
@@ -124,4 +124,4 @@ def run_pre_train_tests(config: Config):
 
 if __name__ == "__main__":
     config_path = find_repo_root() / 'config.yaml'
-    run_pre_train_tests(load_config(config_path))
+    run_pre_train_tests(load_config(config_path, TrainingFlowConfig))
