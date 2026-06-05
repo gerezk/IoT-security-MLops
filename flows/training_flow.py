@@ -10,7 +10,7 @@ from iot_security_mlops.utils.utils_core import load_requirements
 
 class IoTSecurityFlow(FlowSpec):
     # metaflow breaks with custom __init__
-    config_name = Parameter(
+    config_file = Parameter(
         "config",
         help="Full config file name in configs dir",
         required=True,
@@ -28,12 +28,13 @@ class IoTSecurityFlow(FlowSpec):
 
         from iot_security_mlops.utils.utils_mlflow import initialize_flow_environment
 
+        self.config_name = self.config_file.split(".")[0]
         (
             self.config_path,
             self.config,
             self.artifact_dir,
             self.db_path,
-        ) = initialize_flow_environment(ROOT, self.config_name)
+        ) = initialize_flow_environment(ROOT, self.config_file)
 
         self.experiment_name = "iot_security_mlops"
         experiment = mlflow.get_experiment_by_name(self.experiment_name)
@@ -43,9 +44,6 @@ class IoTSecurityFlow(FlowSpec):
                 artifact_location=self.artifact_dir.resolve().as_uri()
             )
         mlflow.set_experiment(self.experiment_name)
-
-        mlflow.log_artifact(str(self.config_path))
-        mlflow.set_tag("config_version", self.config_name)
 
         self.next(self.pre_training_tests)
 
@@ -77,6 +75,10 @@ class IoTSecurityFlow(FlowSpec):
         mlflow.set_tracking_uri(f"sqlite:///{self.db_path}")
         mlflow.set_experiment(self.experiment_name)
         with mlflow.start_run() as run:
+            mlflow.log_artifact(str(self.config_path))
+            mlflow.set_tag("run_name", f"train_{self.config_name}")
+            mlflow.set_tag("config_version", self.config_name)
+
             x_train, y_train = load_data(self.config.paths.train_data)
 
             # artificially induce train smaller than required train set size
@@ -111,6 +113,10 @@ class IoTSecurityFlow(FlowSpec):
             })
 
             self.run_id = run.info.run_id
+
+            mlflow.set_tag("pipeline_run_id", self.__class__.__name__ + "-" + self.run_id)
+            mlflow.set_tag("run_name", f"evaluate_{self.config_name}")
+            mlflow.set_tag("stage", "training")
 
         self.next(self.post_training_tests)
 
@@ -147,6 +153,11 @@ class IoTSecurityFlow(FlowSpec):
             raise RuntimeError("Model failed quality gate during evaluation.")
         else:
             mlflow.set_tag("status", "approved")
+
+        mlflow.set_tag("pipeline_run_id", self.__class__.__name__ + "-" + self.run_id)
+        mlflow.set_tag("stage", "evaluation")
+
+        mlflow.end_run()
 
         self.next(self.end)
 

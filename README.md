@@ -152,6 +152,19 @@ docker run --platform=linux/amd64 -it \
  mqtt-mlops
 ```
 
+### MLflow Tracking UI
+
+To use the MLflow tracking UI, ensure that the current environment has mlflow installed and execute the following 
+command from the project root:
+
+```
+mlflow ui \
+  --backend-store-uri sqlite:///$(pwd)/output/mlflow/mlflow.db \
+  --port 5000
+```
+
+Open the UI by opening http://localhost:5000 in your browser.
+
 ## ℹ️ Sources
 
 The dataset in the project is based on the MQTTset. The goal of the dataset creators 
