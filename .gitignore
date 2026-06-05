@@ -4,6 +4,7 @@ data/
 output/
 test_results/
 .metaflow/
+mlruns
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

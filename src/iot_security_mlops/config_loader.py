@@ -51,10 +51,17 @@ class TrainConfig(BaseModel):
     use_subset: bool = False
 
 
+class DriftTestsConfig(BaseModel):
+    inject_drift: bool = False
+    sensor_ip: str
+    alpha: float = Field(gt=0, lt=1)
+
+
 # --- Top-level config model ---
 class Config(BaseModel):
     paths: PathConfig
     train: TrainConfig
+    drift: DriftTestsConfig
 
 
 def load_config(config_file: Path) -> Config:

@@ -25,20 +25,26 @@ def drop_cols(df: pd.DataFrame) -> pd.DataFrame:
     return df_copy
 
 
-def load_data(path: Path) -> Tuple[pd.DataFrame, pd.Series]:
+def load_data(path: Path,
+              drop_columns: bool = True,
+              encode_cat_cols: bool = True) -> Tuple[pd.DataFrame, pd.Series]:
     """
     Load processed data csv and encode categorical columns.
     :param path: relative path to training data from project root
+    :param drop_columns: whether to drop unneeded columns
+    :param encode_cat_cols: whether to encode categorical columns
     :return: x, y
     """
     data_file = find_repo_root() / path
     df = pd.read_csv(data_file)
-    df = drop_cols(df)
 
-    # encode categorical columns
-    df = df.astype('category')
-    cat_columns = df.select_dtypes(['category']).columns
-    df[cat_columns] = df[cat_columns].apply(lambda z: z.cat.codes)
+    if drop_columns:
+        df = drop_cols(df)
+
+    if encode_cat_cols:
+        df = df.astype('category')
+        cat_columns = df.select_dtypes(['category']).columns
+        df[cat_columns] = df[cat_columns].apply(lambda z: z.cat.codes)
 
     x = df.iloc[:, :-1]
     y = df.iloc[:, -1]
