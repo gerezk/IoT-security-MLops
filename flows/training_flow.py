@@ -9,6 +9,7 @@ from iot_security_mlops.utils_core import load_requirements
 
 
 class IoTSecurityFlow(FlowSpec):
+    # metaflow breaks with custom __init__
 
     @pypi(
         python='3.11',
@@ -18,19 +19,24 @@ class IoTSecurityFlow(FlowSpec):
     def start(self):
 
         import mlflow
-        from iot_security_mlops.config_loader import load_config
 
-        config_path = ROOT / "config.yaml"
-        self.config = load_config(config_path)
+        from iot_security_mlops.utils_mlflow import initialize_flow_environment
 
-        # ---- MLflow setup ----
-        self.tracking_dir = ROOT / self.config.paths.mlflow_dir
-        self.tracking_dir.mkdir(parents=True, exist_ok=True)
 
-        self.db_path = self.tracking_dir / "mlflow.db"
-        mlflow.set_tracking_uri(f"sqlite:///{self.db_path}")
+        (
+            self.config_path,
+            self.config,
+            self.artifact_dir,
+            self.db_path,
+        ) = initialize_flow_environment(ROOT)
 
         self.experiment_name = "iot_security_mlops"
+        experiment = mlflow.get_experiment_by_name(self.experiment_name)
+        if experiment is None:
+            mlflow.create_experiment(
+                name=self.experiment_name,
+                artifact_location=self.artifact_dir.resolve().as_uri()
+            )
         mlflow.set_experiment(self.experiment_name)
 
         self.next(self.pre_training_tests)

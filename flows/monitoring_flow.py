@@ -25,11 +25,17 @@ class MonitoringFlow(FlowSpec):
         (
             self.config_path,
             self.config,
-            self.tracking_dir,
+            self.artifact_dir,
             self.db_path,
         ) = initialize_flow_environment(ROOT)
 
         self.experiment_name = "drift_tests"
+        experiment = mlflow.get_experiment_by_name(self.experiment_name)
+        if experiment is None:
+            mlflow.create_experiment(
+                name=self.experiment_name,
+                artifact_location=self.artifact_dir.resolve().as_uri()
+            )
         mlflow.set_experiment(self.experiment_name)
 
         self.next(self.detect_drift)
