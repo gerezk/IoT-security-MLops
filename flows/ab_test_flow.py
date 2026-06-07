@@ -111,6 +111,67 @@ class ABTestFlow(FlowSpec):
         self.a_idx = a_idx
         self.b_idx = b_idx
 
+        self.next(self.predict_a, self.predict_b)
+
+    # ---------------
+    # A/B branch
+    # ---------------
+
+    @pypi(
+        python='3.11',
+        packages=load_requirements(ROOT / 'requirements/ab_test_flow/ab_predict.txt')
+    )
+    @step
+    def predict_a(self):
+
+        from iot_security_mlops.utils.utils_mlflow import pull_model
+        from iot_security_mlops.data.load_data import load_data
+        from iot_security_mlops.models.metrics import evaluate_model
+
+
+        config_version = self.config.AB_test.config_versions.b
+        model = pull_model(self.db_path, self.config.AB_test.experiment_name, config_version)
+
+        x, y = load_data(self.config.paths.deployment_data, True, True)
+
+        x = x.iloc[self.a_idx, :]
+        y = y[self.a_idx]
+
+        self.acc, self.f1 = evaluate_model(model, x, y)
+
+        self.next(self.join)
+
+    @pypi(
+        python='3.11',
+        packages=load_requirements(ROOT / 'requirements/ab_test_flow/ab_predict.txt')
+    )
+    @step
+    def predict_b(self):
+
+        from iot_security_mlops.utils.utils_mlflow import pull_model
+        from iot_security_mlops.data.load_data import load_data
+        from iot_security_mlops.models.metrics import evaluate_model
+
+
+        config_version = self.config.AB_test.config_versions.b
+        model = pull_model(self.db_path, self.config.AB_test.experiment_name, config_version)
+
+        x, y = load_data(self.config.paths.deployment_data, True, True)
+
+        x = x.iloc[self.b_idx, :]
+        y = y[self.b_idx]
+
+        self.acc, self.f1 = evaluate_model(model, x, y)
+
+        self.next(self.join)
+
+    @pypi(
+        python='3.11',
+        packages=load_requirements(ROOT / 'requirements/ab_test_flow/join.txt')
+    )
+    @step
+    def join(self, inputs):
+
         self.next(self.end)
 
     @step

@@ -84,7 +84,7 @@ class IoTSecurityFlow(FlowSpec):
             mlflow.set_tag("run_name", f"train_{self.config_name}")
             mlflow.set_tag("config_version", self.config_name)
 
-            x_train, y_train = load_data(self.config.paths.train_data)
+            x_train, y_train = load_data(self.config.paths.train_data, True, True)
 
             # artificially induce train smaller than required train set size
             if self.config.train.use_subset:

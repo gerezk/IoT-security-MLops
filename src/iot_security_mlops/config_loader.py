@@ -62,6 +62,7 @@ class ConfigVersions(BaseModel):
 
 class ABTestConfig(BaseModel):
     seed: int = 42
+    experiment_name: str
     config_versions: ConfigVersions
     sensor_ips: list[str]
 

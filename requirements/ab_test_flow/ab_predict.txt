@@ -1,0 +1,3 @@
+PyYAML==6.0.3
+mlflow==3.12.0
+pandas==2.3.3

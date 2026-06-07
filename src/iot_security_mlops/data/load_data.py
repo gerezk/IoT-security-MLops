@@ -30,7 +30,7 @@ def load_data(path: Path,
               encode_cat_cols: bool = True) -> Tuple[pd.DataFrame, pd.Series]:
     """
     Load processed data csv and encode categorical columns.
-    :param path: relative path to training data from project root
+    :param path: relative path to data from project root
     :param drop_columns: whether to drop unneeded columns
     :param encode_cat_cols: whether to encode categorical columns
     :return: x, y
@@ -42,9 +42,8 @@ def load_data(path: Path,
         df = drop_cols(df)
 
     if encode_cat_cols:
-        df = df.astype('category')
-        cat_columns = df.select_dtypes(['category']).columns
-        df[cat_columns] = df[cat_columns].apply(lambda z: z.cat.codes)
+        for col in df.select_dtypes(include=["object", "category"]).columns:
+            df[col] = df[col].astype("category").cat.codes
 
     x = df.iloc[:, :-1]
     y = df.iloc[:, -1]

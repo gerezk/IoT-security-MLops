@@ -8,6 +8,7 @@ paths: # relative to project root
 
 AB_test:
   seed: 42
+  experiment_name: iot_security_mlops # from mlflow
   config_versions:
     a: train_baseline_v1
     b: train_more_trees_v1

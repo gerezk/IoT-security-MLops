@@ -3,7 +3,7 @@ import mlflow
 from pydantic import BaseModel
 from typing import TypeVar
 
-from iot_security_mlops.config_loader import load_config, TrainingFlowConfig, MonitoringFlowConfig, ABTestFlowConfig
+from iot_security_mlops.config_loader import load_config
 
 
 T = TypeVar("T", bound=BaseModel)
@@ -34,3 +34,30 @@ def initialize_flow_environment(root: Path, config_name: str, model: type[T]) ->
     mlflow.set_tracking_uri(f"sqlite:///{db_path}")
 
     return config_path, config, artifact_dir, db_path
+
+def pull_model(db_path: str, experiment_name: str, config_version: str) -> str:
+    """
+    Gets random forest model from most recent MLflow run_id for given experiment name and config version.
+    :param experiment_name: Experiment name.
+    :param config_version: Config version (without .yaml).
+    :return: sklearn random forest model
+    """
+
+    mlflow.set_tracking_uri(f"sqlite:///{db_path}")
+    mlflow.set_experiment(experiment_name)
+
+    runs = mlflow.search_runs(
+        experiment_names=[experiment_name],
+        filter_string=f"tags.config_version = '{config_version}'",
+        order_by=["start_time DESC"]
+    )
+
+    if len(runs) == 0:
+        raise RuntimeError(f"No MLflow runs found for experiment '{experiment_name}, "
+                           f"version {config_version}.'")
+
+    run_id = runs.iloc[0].run_id
+
+    model_uri = f"runs:/{run_id}/random_forest"
+
+    return mlflow.sklearn.load_model(model_uri)
