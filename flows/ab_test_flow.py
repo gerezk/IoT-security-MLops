@@ -172,6 +172,38 @@ class ABTestFlow(FlowSpec):
     @step
     def join(self, inputs):
 
+        import mlflow
+
+
+        # branch-specific outputs
+        self.a_acc = inputs.predict_a.acc
+        self.a_f1 = inputs.predict_a.f1
+
+        self.b_acc = inputs.predict_b.acc
+        self.b_f1 = inputs.predict_b.f1
+
+        # save one of the branch configs (should be identical between branches)
+        self.config = inputs.predict_a.config
+
+        # merge only non-conflicting artifacts
+        self.merge_artifacts(
+            inputs,
+            exclude=['acc', 'f1', 'config']
+        )
+
+        mlflow.set_tracking_uri(f"sqlite:///{self.db_path}")
+        mlflow.set_experiment(self.experiment_name)
+
+        mlflow.log_artifact(str(self.config_path))
+        mlflow.set_tag("config_version", self.config_name)
+        mlflow.set_tag("model_a", self.config.AB_test.config_versions.a)
+        mlflow.set_tag("model_b", self.config.AB_test.config_versions.b)
+
+        mlflow.log_metrics({"a_accuracy": inputs.predict_a.acc,
+                            "a_f1": inputs.predict_a.f1,
+                            "b_accuracy": inputs.predict_b.acc,
+                            "b_f1": inputs.predict_b.f1,})
+
         self.next(self.end)
 
     @step

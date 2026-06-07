@@ -9,21 +9,26 @@ trains a <ins>random forest</ins> model for network intrusion detection, and sup
 Repository Structure:
 
 ```md
-├── config.yaml
+├── configs
+│   ├── ab_test_v1.yaml
+│   ├── monitor_inject_drift_v1.yaml
+│   ├── train_baseline_v1.yaml
+│   └── train_more_trees_v1.yaml
 ├── Dockerfile
 ├── flows
+│   ├── ab_test_flow.py
+│   ├── monitoring_flow.py
 │   └── training_flow.py
 ├── notebooks
 │   ├── model_training.ipynb
 │   ├── msg_freq_validation.ipynb
 │   └── pre-training_analysis.ipynb
-├── pyproject.toml
 ├── requirements
+│   ├── ab_test_flow
 │   ├── base.txt
-│   ├── post_training_tests.txt
-│   ├── pre_training_tests.txt
-│   ├── start.txt
-│   └── training.txt
+│   ├── monitoring_flow
+│   └── training_flow
+├── run_pipeline.sh
 └── src
     └── iot_security_mlops
         ├── config_loader.py
@@ -35,10 +40,12 @@ Repository Structure:
         │   └── train_model.py
         ├── pre-process_data.py
         ├── tests
+        │   ├── drift_detection.py
         │   └── pre_training_tests.py
-        ├── train.py
-        ├── utils_core.py
-        └── utils_data.py
+        └── utils
+            ├── utils_core.py
+            ├── utils_data.py
+            └── utils_mlflow.py
 ```
 
 ## 📊🔍 Message Frequency Validation
