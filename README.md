@@ -48,6 +48,10 @@ Repository Structure:
             └── utils_mlflow.py
 ```
 
+Flow diagrams:
+
+![](/images/flow_diagrams.png)
+
 ## 📊🔍 Message Frequency Validation
 
 Inconsistencies were identified between documented and observed message frequencies, primarily for sensors labeled as 
