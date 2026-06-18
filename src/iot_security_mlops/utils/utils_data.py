@@ -21,7 +21,7 @@ def df_sensor_msg_freq(df: pd.DataFrame, ip_address: str, mqtt_msgtype: float) -
 
 def df_all_sensor_msg_freq(df: pd.DataFrame, mqtt_msgtype: float) -> pd.DataFrame:
     """
-    Filters df for packets of a given sensor IP address and mqtt.msgtype.
+    Filters df for packets of a given mqtt.msgtype and creates delta col representing the messaging frequency.
     :param df: df of packets.
     :param mqtt_msgtype: MQTT message type corresponding to Wireshark convention.
     :return: df with message frequency for only packets of mqtt_msgtype.
